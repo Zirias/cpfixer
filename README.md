@@ -11,4 +11,4 @@ avoided for hardware limitation, but is extremely unlikely to happen.
 It's mainly meant as a demonstration how simple some basic protection would
 have been in the original KERNAL. 
 
-**PRG download:** [cpfixer.prg](https://github.com/Zirias/cpfixer/blob/master/cpfixer.prg?raw=true) (118 bytes)
+**PRG download:** [cpfixer.prg](https://github.com/Zirias/cpfixer/blob/master/cpfixer.prg?raw=true) (121 bytes)

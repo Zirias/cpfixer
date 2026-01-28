@@ -17,7 +17,7 @@ entry:		sei
 		sta	romwr2+2
 		ldx	#0
 		ldy	#$20
-romrd1:		lda	$f000,x
+romrd1:		lda	$f000,x		; Copy all ROM to RAM
 romwr1:		sta	$f000,x
 romrd2:		lda	$f000,x
 romwr2:		sta	$f000,x
@@ -32,10 +32,10 @@ romwr2:		sta	$f000,x
 		bne	romrd1
 dopatch:	ldx	#kbchecklen-1
 patchloop:	lda	kbcheck,x	; place new preamble code in
-		sta	$e4b7,x		; unused area of original rom
+		sta	$e4b7,x		; unused area of original ROM
 		dex
 		bpl	patchloop
-		lda	#$b7		; update jmp command in the
+		lda	#$b7		; update JSR command in the
 		sta	$ea7c		; system IRQ routine to
 		lda	#$e4		; point to our preamble instead
 		sta	$ea7d
@@ -47,7 +47,8 @@ patchloop:	lda	kbcheck,x	; place new preamble code in
 ; new preamble to keyboard scanning, only call original scanning routine
 ; when there is no current control port activity.
 kbcheck:	lda	#0
-		sta	$dc02		; Configure PORT A for input only
+		sta	$dc02		; Configure PORT A
+		sta	$dc03		; and PORT B for input only
 		lda	$dc00		; Combine inputs of both ports
 		and	$dc01
 		dec	$dc02		; Configure PORT A for in/out again
