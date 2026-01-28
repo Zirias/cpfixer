@@ -6,9 +6,31 @@
 		.byte	$9e, "2061", 0
 hdrend:		.word	0
 
+; print string 't' with length 'l'
+.macro print t, l
+		ldx	#(l ^ $ff) + 1
+		lda	t-$100+l,x
+		jsr	$ffd2
+		inx
+		bne	*-7
+.endmacro
+
 .code
 
-entry:		sei
+entry:		ldx	#2
+checkloop1:	lda	$ea7b,x		; check original JSR to keyboard scan
+		cmp	origjsr,x
+		bne	error
+		dex
+		bpl	checkloop1
+		ldx	#kbchecklen-1
+checkloop2:	lda	$e4b7,x		; check "empty" space in KERNAL ROM
+		cmp	#$aa
+		bne	error
+		dex
+		bpl	checkloop2
+		print	patching, patchinglen
+		sei
 		lda	#$a0
 		sta	romrd1+2
 		sta	romwr1+2
@@ -42,6 +64,10 @@ patchloop:	lda	kbcheck,x	; place new preamble code in
 		lda	#$35		; bank out ROMs
 		sta	$01
 		cli
+		print	done, donelen
+		rts
+
+error:		print	err, errlen
 		rts
 
 ; new preamble to keyboard scanning, only call original scanning routine
@@ -58,3 +84,12 @@ kbcheck:	lda	#0
 		jmp	$ea87		; Original keayboard scan routine
 kbskip:		rts
 kbchecklen=	*-kbcheck
+
+origjsr:	jsr	$ea87
+
+patching:	.byte	"patching kernal ... "
+patchinglen=	*-patching
+done:		.byte	"done.", $d
+donelen=	*-done
+err:		.byte	"kernal is unsupported or", $d, "already patched!", $d
+errlen=		*-err
